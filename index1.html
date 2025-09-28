@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Happy Birthday Rahul 🎉</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #4b0073;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      text-align: center;
+    }
+    .card {
+      width: 92%;
+      max-width: 760px;
+      padding: 20px;
+    }
+    h1 { margin: 0; font-size: 2.1rem; }
+    p { max-width: 640px; margin: 14px auto 22px; line-height: 1.45; color: rgba(255,255,255,0.95); }
+
+    .cake {
+      position: relative;
+      width: 220px;
+      height: 240px;
+      margin: 8px auto 16px;
+    }
+    .tier {
+      background: #ffe97a;
+      border: 2px solid #000;
+      border-radius: 8px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: block;
+    }
+    .tier.bottom { width: 220px; height: 70px; bottom: 0; }
+    .tier.middle { width: 160px; height: 56px; bottom: 70px; }
+    .tier.top    { width: 110px; height: 46px; bottom: 126px; }
+
+    .cherries { position: absolute; left: 50%; transform: translateX(-50%); top: 6px; display:flex; gap:10px; }
+    .cherry { width:16px; height:16px; background: #e11; border-radius:50%; }
+
+    .candle-wrap {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(126px + 46px + 6px);
+      display:flex;
+      gap: 20px;
+      z-index: 6;
+    }
+    .candle { width: 14px; height: 50px; background: #fff; border: 2px solid #000; border-radius:4px; position: relative; }
+    .flame { position:absolute; top:-22px; left:50%; transform:translateX(-50%); width:18px; height:22px; background: radial-gradient(circle at 35% 30%, #fffcc2 0%, #ffd45a 20%, #ff8c3a 60%, #ff4b4b 100%); border-radius: 50% 50% 50% 40% / 60% 60% 40% 40%; animation: flicker .32s infinite alternate; }
+    @keyframes flicker { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.08) rotate(-3deg); } }
+    .out .flame { opacity: 0; transform: translateX(-50%) translateY(6px) scale(0.5); transition: all .6s ease-in; }
+
+    canvas.conf { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+    .hint { font-size: 0.95rem; margin-top: 8px; color: rgba(255,255,255,0.95); }
+  </style>
+</head>
+<body>
+  <canvas class="conf" id="conf"></canvas>
+  <div class="card">
+    <h1>🎂 Happy Birthday Rahul 🎉🎈</h1>
+    <p>Today, you deserve the biggest celebration 🎉🎈 for all the joy you bring into this world. There are many precious things in life, but few are as special as you, my friend. Wishing you endless love, laughter, and happiness on your birthday 🎂.<br><br>
+    Thank you for the countless adventures, memories, and laughter we’ve shared together. May you achieve even more success in life, and may God bless you with all the happiness and prosperity you deserve.<br><br>
+    Once again, I wish you a very Happy Birthday 🎉🎈🎂 — enjoy your day to the fullest!</p>
+
+    <div class="cake" id="cake">
+      <div class="tier bottom">
+        <div class="cherries">
+          <div class="cherry"></div><div class="cherry"></div><div class="cherry"></div><div class="cherry"></div><div class="cherry"></div>
+        </div>
+      </div>
+      <div class="tier middle">
+        <div class="cherries">
+          <div class="cherry"></div><div class="cherry"></div><div class="cherry"></div><div class="cherry"></div>
+        </div>
+      </div>
+      <div class="tier top">
+        <div class="cherries">
+          <div class="cherry"></div><div class="cherry"></div><div class="cherry"></div>
+        </div>
+      </div>
+
+      <div class="candle-wrap" id="cwrap">
+        <div class="candle"><div class="flame"></div></div>
+        <div class="candle"><div class="flame"></div></div>
+        <div class="candle"><div class="flame"></div></div>
+      </div>
+    </div>
+
+    <div class="hint">(Shake your phone or tap the cake to blow out the candles 🎂)</div>
+  </div>
+
+  <audio id="song" autoplay loop>
+    <source src="https://www2.cs.uic.edu/~i101/SoundFiles/HappyBirthday.mid" type="audio/midi">
+  </audio>
+
+  <script>
+    // Confetti setup
+    const canvas = document.getElementById('conf');
+    const ctx = canvas.getContext('2d');
+    function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+    window.addEventListener('resize', resize); resize();
+    let pieces = [];
+    function spawn(n){ for(let i=0;i<n;i++){ pieces.push({ x: Math.random()*canvas.width, y: -20 + Math.random()*-300, w: 6+Math.random()*12, h: 6+Math.random()*8, vy: 2+Math.random()*4, color: `hsl(${Math.random()*360},80%,60%)` }); } }
+    spawn(120);
+    function loop(){ ctx.clearRect(0,0,canvas.width,canvas.height); for(let p of pieces){ ctx.fillStyle = p.color; ctx.fillRect(p.x,p.y,p.w,p.h); p.y += p.vy; if(p.y > canvas.height + 60) p.y = -50; } requestAnimationFrame(loop); }
+    loop();
+
+    // Candle blow logic
+    const cake = document.getElementById('cake');
+    const song = document.getElementById('song');
+    let blown = false;
+    function blow(){
+      if(blown) return;
+      blown = true;
+      cake.classList.add('out');
+      const puff = document.createElement('div');
+      puff.style.position = 'fixed';
+      puff.style.left = '50%';
+      puff.style.top = '42%';
+      puff.style.transform = 'translate(-50%,-50%)';
+      puff.style.width = '180px';
+      puff.style.height = '80px';
+      puff.style.borderRadius = '50px';
+      puff.style.background = 'radial-gradient(circle at 30% 40%, rgba(255,255,255,0.95), rgba(255,255,255,0.6), rgba(200,200,200,0.05))';
+      puff.style.opacity = '0.95';
+      puff.style.zIndex = 20;
+      document.body.appendChild(puff);
+      setTimeout(()=>{ puff.style.transition = 'all 700ms ease'; puff.style.transform = 'translate(-50%,-120%) scale(1.2)'; puff.style.opacity = '0'; }, 30);
+      setTimeout(()=>puff.remove(), 900);
+      const s = new Audio('https://actions.google.com/sounds/v1/human_voices/explosion_puff.ogg');
+      s.volume = 0.9; s.play().catch(()=>{});
+      for(let i=0;i<6;i++) setTimeout(()=>spawn(40), i*120);
+      if(song){ const fade = setInterval(()=>{ if(song.volume > 0.02) song.volume = Math.max(0, song.volume - 0.05); else { clearInterval(fade); song.pause(); } }, 120); }
+    }
+
+    // Shake detection
+    if(window.DeviceMotionEvent){
+      let last = { x: null, y: null, z: null };
+      window.addEventListener('devicemotion', e => {
+        const a = e.accelerationIncludingGravity;
+        if(!a) return;
+        if(last.x === null){ last = { x: a.x, y: a.y, z: a.z }; return; }
+        const dx = Math.abs(a.x - last.x), dy = Math.abs(a.y - last.y), dz = Math.abs(a.z - last.z);
+        if(dx + dy + dz > 28) blow();
+        last = { x: a.x, y: a.y, z: a.z };
+      });
+    }
+
+    cake.addEventListener('click', blow);
+  </script>
+</body>
+</html>
